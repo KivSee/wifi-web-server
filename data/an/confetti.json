@@ -1,0 +1,8 @@
+{
+	"Name": "confetti",
+	"properties": {
+		"hue" : {
+			"type": "integer"
+		},
+	},
+}	

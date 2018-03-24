@@ -1,0 +1,8 @@
+{
+	"Name": "rainbow",
+	"properties": {
+		"hue" : {
+			"type": "integer"
+		},
+	},
+}	
