@@ -1,2 +1,2 @@
-./src/KivseeConf.h filter=hide_defines
+/src/KivseeConf.h filter=hide_defines
 git config filter.hide_defines.clean ./src/hide_defines.sh
