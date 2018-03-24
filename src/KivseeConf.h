@@ -2,7 +2,7 @@
 #ifndef KivseeConf_H
 #define KivseeConf_H
 
-#define USER_SSID "..."
-#define USER_PASS "..."
+#define USER_SSID "test"
+#define USER_PASS "test"
 
 #endif
