@@ -29,8 +29,12 @@
 #include <FS.h>
 #include <ArduinoJson.h>
 #include <ArduinoOTA.h>
-#include "FastLED.h"
+#include "animationsContainer.h"
+#include <ArduinoOTA.h>
 #include "KivseeConf.h"
+#include "globalParams.h"
+#include "an/current.h"
+#include "an/gParams.h"
 
 FASTLED_USING_NAMESPACE
 
@@ -41,93 +45,12 @@ FASTLED_USING_NAMESPACE
 #define NUM_LEDS    144
 CRGB leds[NUM_LEDS];
 
-#define BRIGHTNESS          32
 #define FRAMES_PER_SECOND  120
 
-class AnIfc {
-
-public:
-
-  AnIfc(CRGB *ledsArray, uint16_t numLeds) {
-    this->ledsArray = ledsArray;
-    this->numLeds = numLeds;
-  }
-
-  virtual String getName() = 0;
-
-  virtual void paint() = 0;
-
-protected:
-
-  CRGB *ledsArray;
-  uint16_t numLeds;
-
-};
-
-class AnRainbow : public AnIfc {
-
-public:
-
-  AnRainbow(CRGB *ledsArray, uint16_t numLeds) : AnIfc(ledsArray, numLeds) {
-
-  }
-
-  String getName() {return "Rainbow"; }
-
-  void paint() {
-    fill_rainbow( ledsArray, numLeds, 0, 7);
-  }
-
-};
-
-class AnSolidColor : public AnIfc {
-
-public:
-
-  AnSolidColor(CRGB *ledsArray, uint16_t numLeds) : AnIfc(ledsArray, numLeds) {
-
-  }
-
-  String getName() {return "SolidColor"; }
-
-  void paint() {
-    fill_solid( ledsArray, numLeds, CRGB::Green);
-  }
-
-};
-
-class AnimationsContainer {
-
-public:
-
-  AnimationsContainer() {
-    allAnimations.reserve(2);
-    allAnimations.push_back(new AnRainbow(leds, NUM_LEDS));
-    allAnimations.push_back(new AnSolidColor(leds, NUM_LEDS));
-  }
-
-  bool changeCurrAnimation(const String &anName) {
-    for(int i=0; i<allAnimations.size(); i++) {
-      if(allAnimations[i]->getName() == anName) {
-        currAnIndex = i;
-        return true;
-      }
-    }
-    return false;
-  }
-
-  void paint() {
-    allAnimations[currAnIndex]->paint();
-  }
-
-private:
-
-  int currAnIndex = 0;
-  std::vector<AnIfc *> allAnimations;
-
-};
-
-AnimationsContainer ac;
+GlobalParams globalParams;
+AnimationsGlobalParams anGlobalParams;
+CurrentAnimation currentAnimation;
+AnimationsContainer ac(leds, NUM_LEDS, currentAnimation, anGlobalParams);
 
 
 #define DBG_OUTPUT_PORT Serial
@@ -207,21 +130,17 @@ void handleFileUpload(){
   }
 }
 
-void handleAnCurrentUpload(){
-  String payload = server.arg("plain");
-  String currentAnimation;
-  bool success = validateAnCurrentJson(payload.c_str(), currentAnimation);
-  if(success) {
-    String filename = "/an/current.json";
-    fsUploadFile = SPIFFS.open(filename, "w");
-    fsUploadFile.write((uint8_t*)payload.c_str(), payload.length());
-    fsUploadFile.close();
-    server.send(200, "text/plain", "");
-    changeCurrentAn();
-  }
-  else {
-    server.send(400, "text/plain", "");
-  }
+void handleGlobalParams() {
+  updateObjectFromHttpPost(server, &globalParams);
+}
+
+void handleAnimationsGlobalParams() {
+  updateObjectFromHttpPost(server, &anGlobalParams);
+}
+
+void handleAnCurrent(){
+  updateObjectFromHttpPost(server, &currentAnimation);
+  ac.changeCurrAnimation(currentAnimation.m_currentAnimationName);
 }
 
 void handleFileDelete(){
@@ -280,52 +199,56 @@ void handleFileList() {
   server.send(200, "text/json", output);
 }
 
-bool validateAnCurrentJson(const String &jsonString, String &currentAnimation) {
+void setupOTA() {
 
-  StaticJsonBuffer<200> jsonBuffer;
-  JsonObject& root = jsonBuffer.parseObject(jsonString);
-  if(!root.success()) {
-    Serial.println("validateAnCurrentJson: parseObject() failed");
-    return false;
-  }
+  /////// ADDED SECTION FOR OTA ///////////
+    // Port defaults to 8266
+    // ArduinoOTA.setPort(8266);
 
-  const JsonVariant curAnimationJson = root["currentAnimation"];
-  if(!curAnimationJson.is<const char*>()) {
-    return false;
-  }
+    // Hostname defaults to esp8266-[ChipID]
+    ArduinoOTA.setHostname(host);
 
-  currentAnimation = curAnimationJson.as<String>();
-  return true;
-}
+    // No authentication by default
+    // ArduinoOTA.setPassword("admin");
 
-void changeCurrentAn(){
-  String path = "/an/current.json";
-  if(SPIFFS.exists(path)){
-    // read the data into a buffer
-    File file = SPIFFS.open(path, "r");
-    char json[200];
-    file.readBytes(json,200);
-    file.close();
-    String currentAnimation;
-    bool success = validateAnCurrentJson(json, currentAnimation);
-    if(!success) {
-      Serial.println("current animation not in legal format");
-      return;
-    }
-    Serial.print("new current animation is: ");
-    Serial.println(currentAnimation);
-    success = ac.changeCurrAnimation(currentAnimation);
-    if(!success) {
-      Serial.println("unable to switch animation to new value!");
-    }
-  }
+    // Password can be set with it's md5 value as well
+    // MD5(admin) = 21232f297a57a5a743894a0e4a801fc3
+    // ArduinoOTA.setPasswordHash("21232f297a57a5a743894a0e4a801fc3");
+
+
+    ArduinoOTA.onStart([]() {
+      String type;
+      if (ArduinoOTA.getCommand() == U_FLASH)
+        type = "sketch";
+      else // U_SPIFFS
+        type = "filesystem";
+
+      // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
+      Serial.println("Start updating " + type);
+    });
+    ArduinoOTA.onEnd([]() {
+      Serial.println("\nEnd");
+    });
+    ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
+      Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+    });
+    ArduinoOTA.onError([](ota_error_t error) {
+      Serial.printf("Error[%u]: ", error);
+      if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+      else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+      else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+      else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+      else if (error == OTA_END_ERROR) Serial.println("End Failed");
+    });
+    ArduinoOTA.begin();
+    Serial.println("OTA setup sequence finished");
+
 }
 
 void setup(void){
   DBG_OUTPUT_PORT.begin(115200);
   DBG_OUTPUT_PORT.print("\n");
   DBG_OUTPUT_PORT.setDebugOutput(true);
-
   SPIFFS.begin();
   {
     Dir dir = SPIFFS.openDir("/");
@@ -336,6 +259,7 @@ void setup(void){
     }
     DBG_OUTPUT_PORT.printf("\n");
   }
+
 
   //WIFI INIT
   DBG_OUTPUT_PORT.printf("Connecting to %s\n", ssid);
@@ -358,7 +282,6 @@ void setup(void){
   DBG_OUTPUT_PORT.println(".local/edit to see the file browser");
 
   FastLED.addLeds<LED_TYPE,DATA_PIN,COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
-  FastLED.setBrightness(BRIGHTNESS);
 
   //SERVER INIT
   //list directory
@@ -375,7 +298,15 @@ void setup(void){
   //second callback handles file uploads at that location
   server.on("/edit", HTTP_POST, [](){ server.send(200, "text/plain", ""); }, handleFileUpload);
 
-  server.on("/an/current", HTTP_POST, handleAnCurrentUpload);
+  loadObjectFromFS(&currentAnimation, "/an/current.json");
+  ac.changeCurrentAnimation();
+  server.on("/an/current", HTTP_POST, handleAnCurrent);
+
+  loadObjectFromFS(&globalParams, "/globalParams.json");
+  server.on("/globalParams", HTTP_POST, handleGlobalParams);
+
+  loadObjectFromFS(&anGlobalParams, "/an/gParams.json");
+  server.on("/an/gParams", HTTP_POST, handleAnimationsGlobalParams);
 
   //called when the url is not defined here
   //use it to load content from SPIFFS
@@ -397,58 +328,18 @@ void setup(void){
   server.begin();
   DBG_OUTPUT_PORT.println("HTTP server started");
 
-/////// ADDED SECTION FOR OTA ///////////
-  // Port defaults to 8266
-  // ArduinoOTA.setPort(8266);
-
-  // Hostname defaults to esp8266-[ChipID]
-  ArduinoOTA.setHostname(host);
-
-  // No authentication by default
-  // ArduinoOTA.setPassword("admin");
-
-  // Password can be set with it's md5 value as well
-  // MD5(admin) = 21232f297a57a5a743894a0e4a801fc3
-  // ArduinoOTA.setPasswordHash("21232f297a57a5a743894a0e4a801fc3");
-
-
-  ArduinoOTA.onStart([]() {
-    String type;
-    if (ArduinoOTA.getCommand() == U_FLASH)
-      type = "sketch";
-    else // U_SPIFFS
-      type = "filesystem";
-
-    // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
-    Serial.println("Start updating " + type);
-  });
-  ArduinoOTA.onEnd([]() {
-    Serial.println("\nEnd");
-  });
-  ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-    Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
-  });
-  ArduinoOTA.onError([](ota_error_t error) {
-    Serial.printf("Error[%u]: ", error);
-    if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
-    else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
-    else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
-    else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
-    else if (error == OTA_END_ERROR) Serial.println("End Failed");
-  });
-  ArduinoOTA.begin();
-  Serial.println("OTA setup sequence finished");
-
-  changeCurrentAn();
+  setupOTA();
 
 }
 
 void loop(void){
+
   ArduinoOTA.handle();
   server.handleClient();
 
   ac.paint();
 
   // send the 'leds' array out to the actual LED strip
+  FastLED.setBrightness((uint8_t) (255 * globalParams.m_globalBrightness) );
   FastLED.show();
 }
