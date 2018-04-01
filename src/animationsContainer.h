@@ -8,6 +8,7 @@
 #include "anRainbow.h"
 #include "anSRainbow.h"
 #include "anSolidColor.h"
+#include "an/confetti.h"
 
 class AnimationsContainer {
 
@@ -20,6 +21,7 @@ public:
     allAnimations.push_back(new AnRainbow(ledsArray, numOfLeds, anGlobalParams));
     allAnimations.push_back(new AnSRainbow(ledsArray, numOfLeds, anGlobalParams));
     allAnimations.push_back(new AnSolidColor(ledsArray, numOfLeds, anGlobalParams));
+    allAnimations.push_back(new AnConfetti(ledsArray, numOfLeds, anGlobalParams));
   }
 
   bool changeCurrentAnimation() {
