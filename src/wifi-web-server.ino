@@ -344,11 +344,12 @@ void setup(){
   DBG_OUTPUT_PORT.println("HTTP server started");
 
   setupOTA();
-  DEBUG("setup phase done, going to loop\n");
+  DEBUG("setup phase done, going to loop");
 }
 
+uint cnt = 0;
 void loop(){
-  
+
   ArduinoOTA.handle();
   server.handleClient();
 
@@ -360,4 +361,8 @@ void loop(){
 
   // Remote debug over telnet
   Debug.handle();
+  cnt++;
+  if ((cnt%1000) == 0) {
+    DEBUG("trying out debug messages over telnet\n");
+  };
 }
