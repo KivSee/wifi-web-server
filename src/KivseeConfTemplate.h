@@ -10,5 +10,6 @@ How to use:
 
 #define USER_SSID "YOUR_WIFI_SSID"
 #define USER_PASS "YOUR_WIFI_PASSWORD"
+#define USER_HOSTNAME "YOUR_HOSTNAME"
 
 #endif

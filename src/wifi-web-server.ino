@@ -22,6 +22,9 @@
   access the sample web page at http://esp8266fs.local
   edit the page by going to http://esp8266fs.local/edit
 */
+
+#define FASTLED_ESP8266_DMA
+
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
@@ -38,11 +41,10 @@
 
 FASTLED_USING_NAMESPACE
 
-#define DATA_PIN    2
+#define DATA_PIN    9
 //#define CLK_PIN   4
 #define LED_TYPE    WS2811
-#define COLOR_ORDER GRB
-#define NUM_LEDS    144
+#define COLOR_ORDER 600
 CRGB leds[NUM_LEDS];
 
 #define FRAMES_PER_SECOND  120
@@ -57,7 +59,7 @@ AnimationsContainer ac(leds, NUM_LEDS, currentAnimation, anGlobalParams);
 
 const char* ssid = USER_SSID;
 const char* password = USER_PASS;
-const char* host = "ksleds";
+const char* host = USER_HOSTNAME;
 
 ESP8266WebServer server(80);
 //holds the current upload
