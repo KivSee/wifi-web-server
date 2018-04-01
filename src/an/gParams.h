@@ -24,7 +24,7 @@ public:
       return false;
     }
 
-    colorConvertor.parseColorFromJsonString(root["leadingColor"].as<const char *>(), &this->m_leadingColor);
+    colorConvertor.parseColorFromJson(root["leadingColor"], &this->m_leadingColor);
     Serial.println(String("leadingColor = "));
 
     return true;
@@ -33,16 +33,11 @@ public:
   bool validateJson(const JsonObject &root) {
 
     const JsonVariant leadingColor = root["leadingColor"];
-    if(!leadingColor.is<const char *>()) {
-      Serial.println("leadingColor field in the json is not string");
+    bool leadingColorSuccess = colorConvertor.parseColorFromJson(leadingColor, NULL);
+    if(!leadingColorSuccess) {
+      Serial.println("leadingColor is not a valid format");
       return false;
     }
-
-
-     if(colorConvertor.parseColorFromJsonString(leadingColor.as<const char *>(), NULL) == false) {
-       Serial.println(String("leadingColor field contains value '") + leadingColor.as<const char *>() + "' which is not a valid color");
-       return false;
-     }
 
     return true;
   }
