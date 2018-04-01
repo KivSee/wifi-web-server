@@ -248,7 +248,7 @@ void setupOTA() {
 
 }
 
-void setup(void){
+void setup(){
   DBG_OUTPUT_PORT.begin(115200);
   DBG_OUTPUT_PORT.print("\n");
   DBG_OUTPUT_PORT.setDebugOutput(true);
@@ -335,7 +335,7 @@ void setup(void){
 
 }
 
-void loop(void){
+void loop(){
 
   ArduinoOTA.handle();
   server.handleClient();
