@@ -8,7 +8,7 @@ class AnIfc {
 
 public:
 
-  AnIfc(CRGB *ledsArray, uint16_t numLeds, const AnimationsGlobalParams &anGlobalParams)
+  AnIfc(CHSV *ledsArray, uint16_t numLeds, const AnimationsGlobalParams &anGlobalParams)
     : m_anGlobalParams(anGlobalParams)
   {
     this->ledsArray = ledsArray;
@@ -21,7 +21,7 @@ public:
 
 protected:
 
-  CRGB *ledsArray;
+  CHSV *ledsArray;
   uint16_t numLeds;
 
   const AnimationsGlobalParams &m_anGlobalParams;

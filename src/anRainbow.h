@@ -8,7 +8,7 @@ class AnRainbow : public AnIfc {
 
 public:
 
-  AnRainbow(CRGB *ledsArray, uint16_t numLeds, const AnimationsGlobalParams &anGlobalParams)
+  AnRainbow(CHSV *ledsArray, uint16_t numLeds, const AnimationsGlobalParams &anGlobalParams)
     : AnIfc(ledsArray, numLeds, anGlobalParams)
   { }
 
@@ -16,10 +16,8 @@ public:
 
   void paint() {
     for(int i=0; i < numLeds; i++) {
-      hsv2rgb_rainbow(CHSV(i * 2, 255, 255), ledsArray[i]);
-//      hsv2rgb_spectrum(CHSV(i * 2, 255, 255), ledsArray[i]);
+      ledsArray[i] = CHSV(i * 2, 255, 255);
     }
-    //fill_rainbow( ledsArray, numLeds, 0, 7);
   }
 
 };
