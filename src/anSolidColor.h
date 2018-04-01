@@ -7,14 +7,16 @@ class AnSolidColor : public AnIfc {
 
 public:
 
-  AnSolidColor(CRGB *ledsArray, uint16_t numLeds, const AnimationsGlobalParams &anGlobalParams)
-    : AnIfc(ledsArray, numLeds, anGlobalParams)
+  AnSolidColor(CHSV *ledsArray, const AnimationsGlobalParams &anGlobalParams)
+    : AnIfc(ledsArray, anGlobalParams)
   { }
 
   String getName() {return "SolidColor"; }
 
   void paint() {
-    fill_solid( ledsArray, numLeds, m_anGlobalParams.m_leadingColor);
+    for(int i=0; i<numLeds(); i++) {
+      ledsArray[i] = m_anGlobalParams.m_leadingColor;
+    }
   }
 
 };

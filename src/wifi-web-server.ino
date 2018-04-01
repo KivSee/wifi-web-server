@@ -50,13 +50,14 @@ FASTLED_USING_NAMESPACE
 #define COLOR_ORDER GRB
 #define NUM_LEDS    600
 CRGB leds[NUM_LEDS];
+CHSV ledsCHSV[NUM_LEDS];
 
 #define FRAMES_PER_SECOND  120
 
 GlobalParams globalParams;
-AnimationsGlobalParams anGlobalParams;
+AnimationsGlobalParams anGlobalParams(NUM_LEDS);
 CurrentAnimation currentAnimation;
-AnimationsContainer ac(leds, NUM_LEDS, currentAnimation, anGlobalParams);
+AnimationsContainer ac(ledsCHSV, currentAnimation, anGlobalParams);
 
 
 #define DBG_OUTPUT_PORT Serial
@@ -142,6 +143,9 @@ void handleGlobalParams() {
 
 void handleAnimationsGlobalParams() {
   updateObjectFromHttpPost(server, &anGlobalParams);
+  for(int i=anGlobalParams.m_numOfPixels; i < anGlobalParams.m_maxPixels; i++) {
+    ledsCHSV[i] = CHSV(0, 0, 0);
+  }
 }
 
 void handleAnCurrent(){
@@ -354,6 +358,10 @@ void loop(){
   server.handleClient();
 
   ac.paint();
+
+  for(int i=0; i<NUM_LEDS; i++) {
+    leds[i] = (CRGB) ledsCHSV[i];
+  }
 
   // send the 'leds' array out to the actual LED strip
   FastLED.setBrightness((uint8_t) (255 * globalParams.m_globalBrightness) );

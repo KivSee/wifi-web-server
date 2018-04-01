@@ -8,18 +8,16 @@ class AnRainbow : public AnIfc {
 
 public:
 
-  AnRainbow(CRGB *ledsArray, uint16_t numLeds, const AnimationsGlobalParams &anGlobalParams)
-    : AnIfc(ledsArray, numLeds, anGlobalParams)
+  AnRainbow(CHSV *ledsArray, const AnimationsGlobalParams &anGlobalParams)
+    : AnIfc(ledsArray, anGlobalParams)
   { }
 
   String getName() {return "Rainbow"; }
 
   void paint() {
-    for(int i=0; i < numLeds; i++) {
-      hsv2rgb_rainbow(CHSV(i * 2, 255, 255), ledsArray[i]);
-//      hsv2rgb_spectrum(CHSV(i * 2, 255, 255), ledsArray[i]);
+    for(int i=0; i < numLeds(); i++) {
+      ledsArray[i] = CHSV(i * 2, 255, 255);
     }
-    //fill_rainbow( ledsArray, numLeds, 0, 7);
   }
 
 };

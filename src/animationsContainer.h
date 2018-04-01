@@ -6,20 +6,20 @@
 #include "an/current.h"
 
 #include "anRainbow.h"
-#include "anSRainbow.h"
 #include "anSolidColor.h"
+#include "an/confetti.h"
 
 class AnimationsContainer {
 
 public:
 
-  AnimationsContainer(CRGB ledsArray[], int numOfLeds, const CurrentAnimation &currentAnimation, const AnimationsGlobalParams &anGlobalParams)
+  AnimationsContainer(CHSV ledsArray[], const CurrentAnimation &currentAnimation, const AnimationsGlobalParams &anGlobalParams)
       :
     m_currentAnimation(currentAnimation), m_anGlobalParams(anGlobalParams)
   {
-    allAnimations.push_back(new AnRainbow(ledsArray, numOfLeds, anGlobalParams));
-    allAnimations.push_back(new AnSRainbow(ledsArray, numOfLeds, anGlobalParams));
-    allAnimations.push_back(new AnSolidColor(ledsArray, numOfLeds, anGlobalParams));
+    allAnimations.push_back(new AnRainbow(ledsArray, anGlobalParams));
+    allAnimations.push_back(new AnConfetti(ledsArray, anGlobalParams));
+    allAnimations.push_back(new AnSolidColor(ledsArray, anGlobalParams));
   }
 
   bool changeCurrentAnimation() {
