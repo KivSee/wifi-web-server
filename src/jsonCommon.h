@@ -30,6 +30,64 @@ public:
     colorNameToValue["blue"] = CHSV(160, 255, 255);
   }
 
+  bool parseColorFromJson(const JsonVariant &leadingColorJson, CHSV *outColor) const {
+
+    if(leadingColorJson.is<const char *>()) {
+      return parseColorFromJsonString(leadingColorJson.as<const char *>(), outColor);
+    }
+
+    if(leadingColorJson.is<JsonObject>()) {
+      return parseColorAsJsonObject(leadingColorJson.as<const JsonObject &>(), outColor);
+    }
+
+
+    return false;
+  }
+
+  bool parseColorAsJsonObject(const JsonObject &jo, CHSV *outColor) const {
+
+    CHSV choosenColor(0, 255, 255);
+
+    for(JsonObject::const_iterator keysIt = jo.begin(); keysIt != jo.end(); ++keysIt) {
+
+      const JsonVariant &valAsVariant = keysIt->value;
+
+      String key = keysIt->key;
+      key.toLowerCase();
+      if(key == "hue") {
+        if(!valAsVariant.is<uint8_t>()) {
+          Serial.println("Hue value should be uint8_t and it isn't");
+          return false;
+        }
+        choosenColor.hue = valAsVariant.as<uint8_t>();
+      }
+      else if(key == "sat" || key == "saturation") {
+        if(!valAsVariant.is<uint8_t>()) {
+          Serial.println("Saturation value should be uint8_t and it isn't");
+          return false;
+        }
+        choosenColor.sat = valAsVariant.as<uint8_t>();
+      }
+      else if(key == "val" || key == "value" || key == "brightness") {
+        if(!valAsVariant.is<uint8_t>()) {
+          Serial.println("Brightness value should be uint8_t and it isn't");
+          return false;
+        }
+        choosenColor.val = valAsVariant.as<uint8_t>();
+      }
+      else {
+        Serial.println(String("unexpected color in json. key '") + keysIt->key + "' is not valid'");
+        return false;
+      }
+
+    }
+
+    if(outColor != NULL) {
+      *outColor = choosenColor;      
+    }
+    return true;
+  }
+
   /*
   if colorAsString represents a valid color, true is returned and color is written to outColor (unless it is NULL).
   if colorAsString is not a valid color string, false is returned and outColor not changed
