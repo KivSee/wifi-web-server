@@ -38,6 +38,9 @@
 #include "globalParams.h"
 #include "an/current.h"
 #include "an/gParams.h"
+#include "RemoteDebug.h" // Remote debug over telnet - not recommended for production, only for development
+
+RemoteDebug Debug;
 
 FASTLED_USING_NAMESPACE
 
@@ -249,9 +252,19 @@ void setupOTA() {
 }
 
 void setup(){
+  // Initialize the telnet server of RemoteDebug
+  Debug.begin(host, 1); // Initiaze the telnet server - set debug level 1-Verbose 2-Debug 3-Info 4-Warnings 5-Errors
+  Debug.setResetCmdEnabled(true); // Enable the reset command
+  // Debug.showTime(true); // To show time
+  // Debug.showProfiler(true); // To show profiler - time between messages of Debug
+  // Send all messages to serial too
+  Debug.setSerialEnabled(true);
+
+  // Serial port init
   DBG_OUTPUT_PORT.begin(115200);
   DBG_OUTPUT_PORT.print("\n");
   DBG_OUTPUT_PORT.setDebugOutput(true);
+  // file system init
   SPIFFS.begin();
   {
     Dir dir = SPIFFS.openDir("/");
@@ -262,7 +275,6 @@ void setup(){
     }
     DBG_OUTPUT_PORT.printf("\n");
   }
-
 
   //WIFI INIT
   DBG_OUTPUT_PORT.printf("Connecting to %s\n", ssid);
@@ -332,11 +344,11 @@ void setup(){
   DBG_OUTPUT_PORT.println("HTTP server started");
 
   setupOTA();
-
+  DEBUG("setup phase done, going to loop\n");
 }
 
 void loop(){
-
+  
   ArduinoOTA.handle();
   server.handleClient();
 
@@ -345,4 +357,7 @@ void loop(){
   // send the 'leds' array out to the actual LED strip
   FastLED.setBrightness((uint8_t) (255 * globalParams.m_globalBrightness) );
   FastLED.show();
+
+  // Remote debug over telnet
+  Debug.handle();
 }
