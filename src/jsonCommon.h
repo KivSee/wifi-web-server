@@ -25,9 +25,21 @@ public:
   std::map<String, CHSV> colorNameToValue;
 
   ColorConvertor() {
+
+    colorNameToValue["white"] = CHSV(0, 0, 255);
+    colorNameToValue["black"] = CHSV(0, 0, 0);
+
     colorNameToValue["red"] = CHSV(0, 255, 255);
     colorNameToValue["green"] = CHSV(96, 255, 255);
     colorNameToValue["blue"] = CHSV(160, 255, 255);
+
+    colorNameToValue["purple"] = CHSV(213, 255, 255);
+    colorNameToValue["yellow"] = CHSV(40, 255, 255);
+    colorNameToValue["turquoise"] = CHSV(110, 255, 255);
+    colorNameToValue["pink"] = CHSV(240, 255, 255);
+    colorNameToValue["orange"] = CHSV(10, 255, 255);
+    colorNameToValue["lime"] = CHSV(60, 255, 255);
+    colorNameToValue["cyan"] = CHSV(130, 255, 255);
   }
 
   bool parseColorFromJson(const JsonVariant &leadingColorJson, CHSV *outColor) const {
@@ -83,7 +95,7 @@ public:
     }
 
     if(outColor != NULL) {
-      *outColor = choosenColor;      
+      *outColor = choosenColor;
     }
     return true;
   }
