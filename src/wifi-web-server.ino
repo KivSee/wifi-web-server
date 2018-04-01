@@ -52,9 +52,9 @@ CHSV ledsCHSV[NUM_LEDS];
 #define FRAMES_PER_SECOND  120
 
 GlobalParams globalParams;
-AnimationsGlobalParams anGlobalParams;
+AnimationsGlobalParams anGlobalParams(NUM_LEDS);
 CurrentAnimation currentAnimation;
-AnimationsContainer ac(ledsCHSV, NUM_LEDS, currentAnimation, anGlobalParams);
+AnimationsContainer ac(ledsCHSV, currentAnimation, anGlobalParams);
 
 
 #define DBG_OUTPUT_PORT Serial
@@ -140,6 +140,9 @@ void handleGlobalParams() {
 
 void handleAnimationsGlobalParams() {
   updateObjectFromHttpPost(server, &anGlobalParams);
+  for(int i=anGlobalParams.m_numOfPixels; i < anGlobalParams.m_maxPixels; i++) {
+    ledsCHSV[i] = CHSV(0, 0, 0);
+  }
 }
 
 void handleAnCurrent(){

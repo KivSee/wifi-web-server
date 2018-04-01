@@ -8,11 +8,14 @@ class AnIfc {
 
 public:
 
-  AnIfc(CHSV *ledsArray, uint16_t numLeds, const AnimationsGlobalParams &anGlobalParams)
+  AnIfc(CHSV *ledsArray, const AnimationsGlobalParams &anGlobalParams)
     : m_anGlobalParams(anGlobalParams)
   {
     this->ledsArray = ledsArray;
-    this->numLeds = numLeds;
+  }
+
+  inline uint16_t numLeds() const {
+    return m_anGlobalParams.m_numOfPixels;
   }
 
   virtual String getName() = 0;
@@ -22,7 +25,6 @@ public:
 protected:
 
   CHSV *ledsArray;
-  uint16_t numLeds;
 
   const AnimationsGlobalParams &m_anGlobalParams;
 };

@@ -7,14 +7,14 @@ class AnSolidColor : public AnIfc {
 
 public:
 
-  AnSolidColor(CHSV *ledsArray, uint16_t numLeds, const AnimationsGlobalParams &anGlobalParams)
-    : AnIfc(ledsArray, numLeds, anGlobalParams)
+  AnSolidColor(CHSV *ledsArray, const AnimationsGlobalParams &anGlobalParams)
+    : AnIfc(ledsArray, anGlobalParams)
   { }
 
   String getName() {return "SolidColor"; }
 
   void paint() {
-    for(int i=0; i<numLeds; i++) {
+    for(int i=0; i<numLeds(); i++) {
       ledsArray[i] = m_anGlobalParams.m_leadingColor;
     }
   }
