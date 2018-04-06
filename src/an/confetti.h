@@ -19,6 +19,7 @@ public:
     int totalPixels = numLeds();
 
     // calculate how many pixels should start at this phase
+    // TODO: use the time since last paint option!
     int pixelsToShine = (totalPixels * m_density) / (densityScaleFactor);
     int reminderPixels = (totalPixels * m_density) % (densityScaleFactor);
     if(random16(densityScaleFactor) < reminderPixels) {
@@ -35,8 +36,6 @@ public:
     if( ((int)(relAmountToDecrease * 256) % 256) > random8()) {
       intAmountToDecrease++;
     }
-
-    Serial.println(intAmountToDecrease);
 
     for(int i=0; i < numLeds(); i++) {
       ledsArray[i].val = max(0, ledsArray[i].val - intAmountToDecrease);

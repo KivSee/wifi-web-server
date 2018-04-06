@@ -6,7 +6,7 @@
 #include "an/current.h"
 
 #include "anRainbow.h"
-#include "anSolidColor.h"
+#include "an/anSolidColor.h"
 #include "an/confetti.h"
 
 class AnimationsContainer {
