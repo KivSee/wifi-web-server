@@ -38,6 +38,28 @@ public:
     }
   }
 
+  bool setFromJson(const JsonObject &root) {
+    if(validateJson(root) == false) {
+      return false;
+    }
+
+    this->m_density = root["density"].as<uint8_t>();
+    Serial.println(String("Confetti: density = ") + this->m_density);
+
+    return true;
+  }
+
+  bool validateJson(const JsonObject &root) {
+
+    const JsonVariant currAnName = root["density"];
+    if(!currAnName.is<uint8_t>()) {
+      Serial.println("AnConfetti: density field in the json is not uint8_t");
+      return false;
+    }
+
+    return true;
+  }
+
   const int densityScaleFactor = 256 * 32;
   int m_density = 64;
 

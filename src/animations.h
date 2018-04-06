@@ -3,8 +3,9 @@
 
 #include "FastLED.h"
 #include "an/gParams.h"
+#include "jsonCommon.h"
 
-class AnIfc {
+class AnIfc : public ObjectFromJsonIfc {
 
 public:
 
@@ -21,6 +22,14 @@ public:
   virtual String getName() = 0;
 
   virtual void paint() = 0;
+
+  virtual bool setFromJson(const JsonObject &root) {
+    return true;
+  }
+
+  virtual bool validateJson(const JsonObject &root) {
+    return true;
+  }
 
 protected:
 

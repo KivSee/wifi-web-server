@@ -20,20 +20,51 @@ public:
     allAnimations.push_back(new AnRainbow(ledsArray, anGlobalParams));
     allAnimations.push_back(new AnConfetti(ledsArray, anGlobalParams));
     allAnimations.push_back(new AnSolidColor(ledsArray, anGlobalParams));
+
+    loadObjectFromFS(allAnimations[1], "/an/Confetti.json");
   }
 
   bool changeCurrentAnimation() {
     return changeCurrAnimation(m_currentAnimation.m_currentAnimationName);
   }
 
-  bool changeCurrAnimation(const String &anName) {
+  bool updateAnimationFromHttpPost(ESP8266WebServer &server) {
+
+    String uri = server.uri();
+    if(!uri.startsWith("/an/")) {
+      Serial.println("uri should start with '/an/'");
+      return false;
+    }
+    // get rid of the "/an/" and the ".json" at the end
+    String animationName = uri.substring(4, uri.length() - 5);
+
+    int index = getAnimationByName(animationName.c_str());
+    Serial.println(index);
+    if(index < 0) {
+      return false;
+    }
+
+    return updateObjectFromHttpPost(server, allAnimations[index]);
+  }
+
+  int getAnimationByName(const char * anName) {
     for(int i=0; i<allAnimations.size(); i++) {
       if(allAnimations[i]->getName() == anName) {
-        currAnIndex = i;
-        return true;
+        return i;
       }
     }
-    return false;
+    return -1;
+  }
+
+  bool changeCurrAnimation(const String &anName) {
+    int index = getAnimationByName(anName.c_str());
+    if(index < 0) {
+      return false;
+    }
+    else {
+      currAnIndex = index;
+      return true;
+    }
   }
 
   void paint() {

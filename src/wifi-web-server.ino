@@ -319,13 +319,16 @@ void setup(){
 
   loadObjectFromFS(&currentAnimation, "/an/current.json");
   ac.changeCurrentAnimation();
-  server.on("/an/current", HTTP_POST, handleAnCurrent);
+  server.on("/an/current.json", HTTP_POST, handleAnCurrent);
 
   loadObjectFromFS(&globalParams, "/globalParams.json");
-  server.on("/globalParams", HTTP_POST, handleGlobalParams);
+  server.on("/globalParams.json", HTTP_POST, handleGlobalParams);
 
   loadObjectFromFS(&anGlobalParams, "/an/gParams.json");
-  server.on("/an/gParams", HTTP_POST, handleAnimationsGlobalParams);
+  server.on("/an/gParams.json", HTTP_POST, handleAnimationsGlobalParams);
+
+  server.on("/an/Confetti.json", HTTP_POST, []() {ac.updateAnimationFromHttpPost(server);} );
+
 
   //called when the url is not defined here
   //use it to load content from SPIFFS

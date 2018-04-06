@@ -197,7 +197,7 @@ bool updateObjectFromHttpPost(ESP8266WebServer &server, ObjectFromJsonIfc *objTo
   Serial.println(payload);
 
   // extract the file name and write to Serial
-  String filename = server.uri() + ".json";
+  String filename = server.uri();
   Serial.println(String("filename to update: ") + filename);
 
   // parse the payload as JSON and validate it's ok
