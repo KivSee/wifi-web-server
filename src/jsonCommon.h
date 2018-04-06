@@ -153,6 +153,29 @@ public:
 };
 ColorConvertor colorConvertor;
 
+template<typename T>
+void readJsonParameter(const char *parameterName, const JsonObject &jo, T *outValue) {
+  *outValue = jo[parameterName].as<T>();
+  Serial.println(String(parameterName) + " = " + *outValue);  
+}
+
+template<typename T>
+bool validateParameter(const char *parameterName, const JsonObject &jo) {
+
+  if(!jo.containsKey(parameterName)) {
+    Serial.println(String("missing key '") + parameterName + "' in json");
+    return false;
+  }
+
+  const JsonVariant jv = jo[parameterName];
+  if(!jv.is<T>()) {
+    Serial.println(String("the value of parameter '") + parameterName + "' has invalid type");
+    return false;
+  }
+
+  return true;
+}
+
 bool loadObjectFromFS(ObjectFromJsonIfc *objToUpdate, const String &path) {
 
   Serial.println(String("will try to read object data as json from file ") + path);

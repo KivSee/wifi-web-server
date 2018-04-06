@@ -30,8 +30,7 @@ public:
     colorConvertor.parseColorFromJson(root["leadingColor"], &this->m_leadingColor);
     Serial.println(String("leadingColor = "));
 
-    m_numOfPixels = root["numOfPixels"].as<uint16_t>();
-    Serial.println(String("numOfPixels = ") + m_numOfPixels);
+    readJsonParameter<uint16_t>("numOfPixels", root, &this->m_numOfPixels);
 
     return true;
   }
@@ -45,18 +44,16 @@ public:
       return false;
     }
 
-    const JsonVariant numOfPixels = root["numOfPixels"];
-    if(!numOfPixels.is<uint16_t>()) {
-      Serial.println("GlobalParams::validateJson: numOfPixels is not uint16_t");
-      return false;
+    bool success = true;
+    success &= validateParameter<uint16_t>("numOfPixels", root);
+    if(success) {
+      if(root["numOfPixels"].as<uint16_t>() > m_maxPixels) {
+        Serial.println(String("GlobalParams::validateJson: numOfPixels is larger than max allowed pixels [") + m_maxPixels + "]");
+        return false;
+      }
     }
-    double nop = numOfPixels.as<uint16_t>();
-    if(nop > m_maxPixels) {
-      Serial.println(String("GlobalParams::validateJson: numOfPixels is larger than max allowed pixels [") + m_maxPixels + "]");
-      return false;
-    }
+    return success;
 
-    return true;
   }
 
 

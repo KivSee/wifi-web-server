@@ -16,21 +16,15 @@ public:
       return false;
     }
 
-    this->m_currentAnimationName = root["currentAnimationName"].as<const char *>();
-    Serial.println(String("current animation name = ") + this->m_currentAnimationName);
+    readJsonParameter<String>("currentAnimationName", root, &this->m_currentAnimationName);
 
     return true;
   }
 
   bool validateJson(const JsonObject &root) {
-
-    const JsonVariant currAnName = root["currentAnimationName"];
-    if(!currAnName.is<const char *>()) {
-      Serial.println("CurrentAnimation: currentAnimationName field in the json is not string");
-      return false;
-    }
-
-    return true;
+    bool success = true;
+    success &= validateParameter<const char *>("currentAnimationName", root);
+    return success;
   }
 
 

@@ -25,15 +25,27 @@ public:
       pixelsToShine++;
     }
 
+    unsigned long currentTime = millis();
+    unsigned long diffMilisSinceLastPaint = currentTime - m_lastPaintTime;
+    float diffSecondsSinceLastPaint = diffMilisSinceLastPaint / 1000.0f;
+    m_lastPaintTime = currentTime;
+
+    double relAmountToDecrease = 255 * (diffSecondsSinceLastPaint / m_fadeTimeSeconds);
+    int intAmountToDecrease = (int) relAmountToDecrease;
+    if( ((int)(relAmountToDecrease * 256) % 256) > random8()) {
+      intAmountToDecrease++;
+    }
+
+    Serial.println(intAmountToDecrease);
 
     for(int i=0; i < numLeds(); i++) {
-      ledsArray[i].val = max(0, ledsArray[i].val - 5);
+      ledsArray[i].val = max(0, ledsArray[i].val - intAmountToDecrease);
     }
 
     for(int i=0; i<pixelsToShine; i++) {
       int pos = random16(numLeds());
       CHSV colorForNewPixel = m_anGlobalParams.m_leadingColor;
-      colorForNewPixel.hue += random8(32) - 16;
+      colorForNewPixel.hue += random8(m_hueSpan) - m_hueSpan / 2;
       ledsArray[pos] = colorForNewPixel;
     }
   }
@@ -43,27 +55,30 @@ public:
       return false;
     }
 
-    this->m_density = root["density"].as<uint8_t>();
-    Serial.println(String("Confetti: density = ") + this->m_density);
+    readJsonParameter<uint8_t>("density", root, &this->m_density);
+    readJsonParameter<uint8_t>("hueSpan", root, &this->m_hueSpan);
+    readJsonParameter<double>("fadeTimeSeconds", root, &this->m_fadeTimeSeconds);
 
     return true;
   }
 
   bool validateJson(const JsonObject &root) {
-
-    const JsonVariant currAnName = root["density"];
-    if(!currAnName.is<uint8_t>()) {
-      Serial.println("AnConfetti: density field in the json is not uint8_t");
-      return false;
-    }
-
-    return true;
+    bool success = true;
+    success &= validateParameter<uint8_t>("density", root);
+    success &= validateParameter<uint8_t>("hueSpan", root);
+    success &= validateParameter<double>("fadeTimeSeconds", root);
+    return success;
   }
 
+  unsigned long m_lastPaintTime = 0;
+
   const int densityScaleFactor = 256 * 32;
-  int m_density = 64;
+  uint8_t m_density = 64;
+  uint8_t m_hueSpan = 32;
+  double m_fadeTimeSeconds = 1.0;
 
 };
+
 
 
 #endif // __AN_RAINBOW_H__
