@@ -10,15 +10,17 @@ public:
 
   AnimationsGlobalParams(uint16_t maxPixels)
     :
-    m_maxPixels(maxPixels), m_numOfPixels(maxPixels), m_leadingColor(0, 0, 255)
+    m_maxPixels(maxPixels), m_numOfPixels(maxPixels), m_leadingColor(0, 0, 255),
+    m_bpm(60)
   {
 
   }
 
   const uint16_t m_maxPixels;
-  uint16_t m_numOfPixels;
 
+  uint16_t m_numOfPixels;
   CHSV m_leadingColor;
+  double m_bpm;
 
 public:
 
@@ -30,7 +32,8 @@ public:
     colorConvertor.parseColorFromJson(root["leadingColor"], &this->m_leadingColor);
     Serial.println(String("leadingColor = "));
 
-    readJsonParameter<uint16_t>("numOfPixels", root, &this->m_numOfPixels);
+    readJsonParameter<>("numOfPixels", root, &this->m_numOfPixels);
+    readJsonParameter<>("bpm", root, &this->m_bpm);
 
     return true;
   }
@@ -45,6 +48,7 @@ public:
     }
 
     bool success = true;
+    success &= validateParameter<uint16_t>("bpm", root);
     success &= validateParameter<uint16_t>("numOfPixels", root);
     if(success) {
       if(root["numOfPixels"].as<uint16_t>() > m_maxPixels) {

@@ -327,6 +327,7 @@ void setup(){
   loadObjectFromFS(&anGlobalParams, "/an/gParams.json");
   server.on("/an/gParams.json", HTTP_POST, handleAnimationsGlobalParams);
 
+  ac.loadInitialJsonsFromFS();
   ac.mapAnimationToHttpHandler(server);
 
 

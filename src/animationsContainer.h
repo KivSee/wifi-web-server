@@ -8,6 +8,7 @@
 #include "anRainbow.h"
 #include "an/anSolidColor.h"
 #include "an/confetti.h"
+#include "an/blink.h"
 
 class AnimationsContainer {
 
@@ -20,12 +21,7 @@ public:
     allAnimations.push_back(new AnRainbow(ledsArray, anGlobalParams));
     allAnimations.push_back(new AnConfetti(ledsArray, anGlobalParams));
     allAnimations.push_back(new AnSolidColor(ledsArray, anGlobalParams));
-
-    for(int i=0; i<allAnimations.size(); i++) {
-      AnIfc *currAnimation = allAnimations[i];
-      String fileName = "/an/" + currAnimation->getName() + ".json";
-      loadObjectFromFS(currAnimation, fileName);
-    }
+    allAnimations.push_back(new AnBlink(ledsArray, anGlobalParams));
   }
 
   bool changeCurrentAnimation() {
@@ -54,6 +50,14 @@ public:
 
   void paint() {
     allAnimations[currAnIndex]->paint();
+  }
+
+  void loadInitialJsonsFromFS() {
+    for(int i=0; i < allAnimations.size(); i++) {
+      AnIfc *currAnimation = allAnimations[i];
+      String fileName = "/an/" + currAnimation->getName() + ".json";
+      loadObjectFromFS(currAnimation, fileName);
+    }
   }
 
   void mapAnimationToHttpHandler(ESP8266WebServer &server) {

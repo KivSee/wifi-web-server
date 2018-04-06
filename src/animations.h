@@ -19,6 +19,10 @@ public:
     return m_anGlobalParams.m_numOfPixels;
   }
 
+  inline uint16_t bpm() const {
+    return m_anGlobalParams.m_bpm;
+  }
+
   virtual String getName() const = 0;
 
   virtual void paint() = 0;
