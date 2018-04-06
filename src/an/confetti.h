@@ -12,7 +12,7 @@ public:
     : AnIfc(ledsArray, anGlobalParams)
   { }
 
-  String getName() {return "Confetti"; }
+  String getName() const {return "Confetti"; }
 
   void paint() {
 

@@ -21,30 +21,15 @@ public:
     allAnimations.push_back(new AnConfetti(ledsArray, anGlobalParams));
     allAnimations.push_back(new AnSolidColor(ledsArray, anGlobalParams));
 
-    loadObjectFromFS(allAnimations[1], "/an/Confetti.json");
+    for(int i=0; i<allAnimations.size(); i++) {
+      AnIfc *currAnimation = allAnimations[i];
+      String fileName = "/an/" + currAnimation->getName() + ".json";
+      loadObjectFromFS(currAnimation, fileName);
+    }
   }
 
   bool changeCurrentAnimation() {
     return changeCurrAnimation(m_currentAnimation.m_currentAnimationName);
-  }
-
-  bool updateAnimationFromHttpPost(ESP8266WebServer &server) {
-
-    String uri = server.uri();
-    if(!uri.startsWith("/an/")) {
-      Serial.println("uri should start with '/an/'");
-      return false;
-    }
-    // get rid of the "/an/" and the ".json" at the end
-    String animationName = uri.substring(4, uri.length() - 5);
-
-    int index = getAnimationByName(animationName.c_str());
-    Serial.println(index);
-    if(index < 0) {
-      return false;
-    }
-
-    return updateObjectFromHttpPost(server, allAnimations[index]);
   }
 
   int getAnimationByName(const char * anName) {
@@ -70,6 +55,17 @@ public:
   void paint() {
     allAnimations[currAnIndex]->paint();
   }
+
+  void mapAnimationToHttpHandler(ESP8266WebServer &server) {
+    for(int i=0; i<allAnimations.size(); i++) {
+      AnIfc *currAnimation = allAnimations[i];
+      String uri = "/an/" + currAnimation->getName() + ".json";
+      server.on(uri, HTTP_POST, [&server, currAnimation]() {
+          updateObjectFromHttpPost(server, currAnimation);
+      } );
+    }
+  }
+
 
 private:
 

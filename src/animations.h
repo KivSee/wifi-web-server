@@ -19,7 +19,7 @@ public:
     return m_anGlobalParams.m_numOfPixels;
   }
 
-  virtual String getName() = 0;
+  virtual String getName() const = 0;
 
   virtual void paint() = 0;
 

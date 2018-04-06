@@ -327,7 +327,7 @@ void setup(){
   loadObjectFromFS(&anGlobalParams, "/an/gParams.json");
   server.on("/an/gParams.json", HTTP_POST, handleAnimationsGlobalParams);
 
-  server.on("/an/Confetti.json", HTTP_POST, []() {ac.updateAnimationFromHttpPost(server);} );
+  ac.mapAnimationToHttpHandler(server);
 
 
   //called when the url is not defined here

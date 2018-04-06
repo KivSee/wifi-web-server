@@ -11,7 +11,7 @@ public:
     : AnIfc(ledsArray, anGlobalParams)
   { }
 
-  String getName() {return "SolidColor"; }
+  String getName() const {return "SolidColor"; }
 
   void paint() {
     for(int i=0; i<numLeds(); i++) {
