@@ -156,7 +156,30 @@ ColorConvertor colorConvertor;
 template<typename T>
 void readJsonParameter(const char *parameterName, const JsonObject &jo, T *outValue) {
   *outValue = jo[parameterName].as<T>();
-  Serial.println(String(parameterName) + " = " + *outValue);  
+  Serial.println(String(parameterName) + " = " + *outValue);
+}
+
+void readJsonColorParameter(const char *parameterName, const JsonObject &jo, CHSV *outValue) {
+  colorConvertor.parseColorFromJson(jo[parameterName], outValue);
+  Serial.println(String(parameterName) + ": hue = " + outValue->hue + " sat: " +
+    outValue->sat + " val: " + outValue->val);
+}
+
+bool validateColorParameter(const char *parameterName, const JsonObject &jo) {
+
+  if(!jo.containsKey(parameterName)) {
+    Serial.println(String("missing key '") + parameterName + "' in json");
+    return false;
+  }
+
+  const JsonVariant jv = jo[parameterName];
+  bool success = colorConvertor.parseColorFromJson(jv, NULL);
+  if(!success) {
+    Serial.println(String("the value of parameter '") + parameterName + "' has invalid format");
+    return false;
+  }
+
+  return true;
 }
 
 template<typename T>
@@ -187,14 +210,14 @@ bool loadObjectFromFS(ObjectFromJsonIfc *objToUpdate, const String &path) {
 
   // file open
   File file = SPIFFS.open(path, "r");
-  char json[200];
-  file.readBytes(json,200);
+  char json[1000];
+  file.readBytes(json,1000);
   file.close();
   Serial.println("json data read from file system: ");
   Serial.println(json);
 
   // convert to json object
-  StaticJsonBuffer<200> jsonBuffer;
+  StaticJsonBuffer<1000> jsonBuffer;
   JsonObject& root = jsonBuffer.parseObject(json);
   if(!root.success()) {
     Serial.println(String("data in file ") + path + " is not a valid json. will not use data from persistency");
@@ -224,7 +247,7 @@ bool updateObjectFromHttpPost(ESP8266WebServer &server, ObjectFromJsonIfc *objTo
   Serial.println(String("filename to update: ") + filename);
 
   // parse the payload as JSON and validate it's ok
-  StaticJsonBuffer<200> jsonBuffer;
+  StaticJsonBuffer<1000> jsonBuffer;
   JsonObject& root = jsonBuffer.parseObject(payload);
   if(!root.success()) {
     Serial.println(String("failed to parse payload as json for uri: ") + server.uri());
@@ -247,7 +270,7 @@ bool updateObjectFromHttpPost(ESP8266WebServer &server, ObjectFromJsonIfc *objTo
   // update the object with the data from the new JSON
   // we do not check success since we validated the json is ok.
   objToUpdate->setFromJson(root);
-  server.send(200, "text/plain", "");
+  server.send(1000, "text/plain", "");
   Serial.println("Done updating uri with new json");
   return true;
 }
