@@ -270,7 +270,7 @@ bool updateObjectFromHttpPost(ESP8266WebServer &server, ObjectFromJsonIfc *objTo
   // update the object with the data from the new JSON
   // we do not check success since we validated the json is ok.
   objToUpdate->setFromJson(root);
-  server.send(1000, "text/plain", "");
+  server.send(200, "text/plain", "");
   Serial.println("Done updating uri with new json");
   return true;
 }
