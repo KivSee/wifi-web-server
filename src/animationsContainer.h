@@ -5,7 +5,7 @@
 #include "an/gParams.h"
 #include "an/current.h"
 
-#include "anRainbow.h"
+#include "an/rainbow.h"
 #include "an/anSolidColor.h"
 #include "an/confetti.h"
 #include "an/blink.h"
