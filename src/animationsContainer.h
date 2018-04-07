@@ -10,6 +10,7 @@
 #include "an/confetti.h"
 #include "an/blink.h"
 #include "an/alternate.h"
+#include "an/snake.h"
 
 class AnimationsContainer {
 
@@ -24,6 +25,7 @@ public:
     allAnimations.push_back(new AnSolidColor(ledsArray, anGlobalParams));
     allAnimations.push_back(new AnBlink(ledsArray, anGlobalParams));
     allAnimations.push_back(new AnAlternate(ledsArray, anGlobalParams));
+    allAnimations.push_back(new AnSnake(ledsArray, anGlobalParams));
   }
 
   bool changeCurrentAnimation() {
