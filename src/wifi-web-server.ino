@@ -38,7 +38,7 @@
 #include "globalParams.h"
 #include "an/current.h"
 #include "an/gParams.h"
-#include "RemoteDebug.h" // Remote debug over telnet - not recommended for production, only for development
+#include <RemoteDebug.h> // Remote debug over telnet - not recommended for production, only for development
 
 RemoteDebug Debug;
 
@@ -62,13 +62,15 @@ AnimationsContainer ac(ledsCHSV, currentAnimation, anGlobalParams);
 
 #define DBG_OUTPUT_PORT Serial
 
-const char* ssid = USER_SSID;
-const char* password = USER_PASS;
+//const char* ssid = USER_SSID;
+//const char* password = USER_PASS;
 const char* host = USER_HOSTNAME;
 
 ESP8266WebServer server(80);
 //holds the current upload
 File fsUploadFile;
+
+#include "WiFi.h"
 
 //format bytes
 String formatBytes(size_t bytes){
@@ -281,24 +283,7 @@ void setup(){
   }
 
   //WIFI INIT
-  DBG_OUTPUT_PORT.printf("Connecting to %s\n", ssid);
-  if (String(WiFi.SSID()) != String(ssid)) {
-    WiFi.mode(WIFI_STA);
-    WiFi.begin(ssid, password);
-  }
-
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    DBG_OUTPUT_PORT.print(".");
-  }
-  DBG_OUTPUT_PORT.println("");
-  DBG_OUTPUT_PORT.print("Connected! IP address: ");
-  DBG_OUTPUT_PORT.println(WiFi.localIP());
-
-  MDNS.begin(host);
-  DBG_OUTPUT_PORT.print("Open http://");
-  DBG_OUTPUT_PORT.print(host);
-  DBG_OUTPUT_PORT.println(".local/edit to see the file browser");
+  initializeWiFi();
 
   FastLED.addLeds<LED_TYPE,DATA_PIN,COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
 
@@ -355,8 +340,9 @@ void setup(){
   DEBUG("setup phase done, going to loop");
 }
 
-uint cnt = 0;
+// uint cnt = 0;
 void loop(){
+  checkWiFi();
 
   ArduinoOTA.handle();
   server.handleClient();
@@ -373,8 +359,9 @@ void loop(){
 
   // Remote debug over telnet
   Debug.handle();
-  cnt++;
-  if ((cnt%1000) == 0) {
-    DEBUG("trying out debug messages over telnet\n");
-  };
+  // cnt++;
+  // if ((cnt%1000) == 0) {
+  //   DEBUG("trying out debug messages over telnet\n");
+  // };
+
 }
