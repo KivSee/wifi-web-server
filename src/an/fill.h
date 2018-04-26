@@ -17,13 +17,15 @@ public:
     uint16_t beatPos = beat16(bpm());
     uint16_t changePos = beatPos / (65535 / (numLeds() * 2) ) % (numLeds() * 2);
 
+    CHSV secondaryColor = m_useSecondaryColor ? m_anGlobalParams.m_secondaryColor : CHSV(0, 0, 0);
+
     CHSV c1, c2;
     if(changePos < numLeds()) {
       c1 = m_anGlobalParams.m_leadingColor;
-      c2 = m_anGlobalParams.m_secondaryColor;
+      c2 = secondaryColor;
     }
     else {
-      c1 = m_anGlobalParams.m_secondaryColor;
+      c1 = secondaryColor;
       c2 = m_anGlobalParams.m_leadingColor;
       changePos -= numLeds();
     }
@@ -47,16 +49,19 @@ public:
       return false;
     }
     readJsonParameter<>("directionStartToEnd", root, &this->m_directionStartToEnd);
+    readJsonParameter<>("useSecondaryColor", root, &this->m_useSecondaryColor);
     return true;
   }
 
   bool validateJson(const JsonObject &root) {
     bool success = true;
     success &= validateParameter<bool>("directionStartToEnd", root);
+    success &= validateParameter<bool>("useSecondaryColor", root);
     return success;
   }
 
   bool m_directionStartToEnd = true;
+  bool m_useSecondaryColor = true;
 
 };
 

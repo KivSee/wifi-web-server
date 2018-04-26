@@ -1,3 +1,4 @@
 {
-	directionStartToEnd: true
+	directionStartToEnd: true,
+  useSecondaryColor: true
 }
