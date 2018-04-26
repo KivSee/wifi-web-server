@@ -1,0 +1,11 @@
+{
+	leadingColor:
+	{
+		hue : 100,
+		Sat: 255,
+		val: 255
+	},
+	secondaryColor: "blue",
+	numOfPixels: 69,
+	bpm: 60
+}

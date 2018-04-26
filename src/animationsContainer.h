@@ -11,6 +11,7 @@
 #include "an/blink.h"
 #include "an/alternate.h"
 #include "an/snake.h"
+#include "an/fill.h"
 
 class AnimationsContainer {
 
@@ -26,6 +27,7 @@ public:
     allAnimations.push_back(new AnBlink(ledsArray, anGlobalParams));
     allAnimations.push_back(new AnAlternate(ledsArray, anGlobalParams));
     allAnimations.push_back(new AnSnake(ledsArray, anGlobalParams));
+    allAnimations.push_back(new AnFill(ledsArray, anGlobalParams));
   }
 
   bool changeCurrentAnimation() {

@@ -1,0 +1,5 @@
+{
+	density: 64,
+	hueSpan: 32,
+	fadeTimeSeconds: 1.0
+}	
